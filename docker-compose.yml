@@ -1,0 +1,43 @@
+# ТАНИЛЦУУЛГА: Docker энэ машинд суугаагүй тул энэ файл ТУРШИГДААГҮЙ. Анх удаа ажиллуулахдаа log-оо шалгаарай.
+#   docker compose up --build
+# Нууц утгууд зөвхөн backend/.env ба ai-service/.env-д (image-д орохгүй, .dockerignore/.gitignore-д бий).
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:1.21.1
+    volumes:
+      - ./infra/mediamtx.yml:/mediamtx.yml:ro
+    ports: ["8889:8889", "8189:8189/udp"]   # WebRTC (WHEP) + ICE
+    restart: unless-stopped
+    # ⚠ infra/mediamtx.yml дахь authHTTPAddress, rtspAddress, apiAddress-ийг container сүлжээнд (backend:8000, 0.0.0.0) тааруулна
+
+  backend:
+    build: ./backend
+    env_file: ./backend/.env
+    environment:
+      CORS_ORIGINS: ${WEB_ORIGIN:-http://localhost:3000}
+      APP_ENV: production
+    ports: ["8000:8000"]
+    restart: unless-stopped
+
+  ai-service:
+    build: ./ai-service
+    env_file: ./ai-service/.env
+    environment:
+      BACKEND_URL: http://backend:8000
+      MEDIAMTX_API_URL: http://mediamtx:9997
+      MEDIAMTX_RTSP_URL: rtsp://mediamtx:8554
+    volumes:
+      - ./ai-service/models:/app/models:ro
+    depends_on: [backend]
+    restart: unless-stopped
+    # GPU хэрэгтэй бол: deploy.resources.reservations.devices (nvidia) нэмж, INFERENCE_DEVICE=cuda:0 тохируулна
+
+  web:
+    build:
+      context: ./web
+      args:
+        NEXT_PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:8000}
+        NEXT_PUBLIC_WS_URL: ${PUBLIC_WS_URL:-ws://localhost:8000/ws}
+    ports: ["3000:3000"]
+    depends_on: [backend]
+    restart: unless-stopped

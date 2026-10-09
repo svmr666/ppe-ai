@@ -1,0 +1,35 @@
+.env
+.env.local
+.env.*.local
+
+node_modules/
+.next/
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+*.pt
+*.onnx
+
+logs/
+temp/
+snapshots/
+
+.DS_Store
+runs/
+datasets/
+
+# Түлхүүр, сертификат, нууц
+*.key
+*.pem
+*.crt
+*.p12
+auto.crt
+auto.key
+.uipw
+
+# Сургалтын видео (царай орсон) ба түр файл
+training/videos/
+*.tmp

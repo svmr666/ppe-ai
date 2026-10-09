@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+.venv/
+logs/
+snapshots/
+temp/
+runs/
+__pycache__/
+*.pt
+*.onnx
+.pytest_cache/

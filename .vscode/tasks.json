@@ -1,0 +1,38 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "worker",
+      "type": "shell",
+      "command": "python3 worker.py",
+      "options": { "cwd": "${workspaceFolder}" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "group": "pinequest", "reveal": "always" }
+    },
+    {
+      "label": "web",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": { "cwd": "${workspaceFolder}/web" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "group": "pinequest", "reveal": "always" }
+    },
+    {
+      "label": "Бүгдийг асаах",
+      "dependsOn": ["worker", "web"],
+      "dependsOrder": "parallel",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Админ үүсгэх (нэг удаа)",
+      "type": "shell",
+      "command": ".venv/bin/python -m scripts.create_admin",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "focus": true, "reveal": "always" }
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+# MediaMTX — камерын видеог browser-д WebRTC-ээр түгээнэ.
+#   mediamtx infra/mediamtx.yml
+# Нэвтрэлт: бүх publish/read/api хүсэлтийг манай backend шалгана (authMethod: http).
+#   - publish/api : ai-service (user "ai", password = INTERNAL_API_KEY)
+#   - read (WebRTC): dashboard-ын богино хугацаатай (2 мин) stream token (Bearer)
+logLevel: info
+
+authMethod: http
+authHTTPAddress: http://127.0.0.1:8001/internal/mediamtx/auth
+authHTTPExclude: []        # api, metrics-ийг ч шалгана (default нь тэднийг чөлөөлдөг)
+
+# Зөвхөн localhost. LAN-аас үзэх бол хаягийг өөрчилж, webrtcAdditionalHosts-д IP нэмнэ.
+rtspAddress: 127.0.0.1:8554
+rtspTransports: [tcp]
+webrtcAddress: 127.0.0.1:8889
+webrtcAllowOrigins: ["http://localhost:3000"]
+webrtcLocalUDPAddress: :8189
+webrtcIPsFromInterfaces: true
+api: yes
+apiAddress: 127.0.0.1:9997
+
+# Хэрэггүй протоколуудыг унтраана (халдлагын гадаргуу багасна)
+rtmp: no
+hls: no
+srt: no
+playback: no
+metrics: no
+pprof: no
+
+paths:
+  all_others:
