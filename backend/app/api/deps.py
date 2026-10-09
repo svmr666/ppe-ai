@@ -8,7 +8,7 @@ from fastapi import Depends, Header, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
-from app.core.security import constant_time_equals, decode_access_token
+from app.core.security import constant_time_equals, decode_access_token, decode_ws_ticket
 from app.database.database import get_db
 from app.database.models import User, UserRole
 
@@ -16,9 +16,14 @@ COOKIE_NAME = "access_token"
 
 
 def user_from_token(db: Session, token: str | None) -> User | None:
-    if not token:
-        return None
-    user_id = decode_access_token(token)
+    return _active_user(db, decode_access_token(token) if token else None)
+
+
+def user_from_ws_ticket(db: Session, ticket: str | None) -> User | None:
+    return _active_user(db, decode_ws_ticket(ticket) if ticket else None)
+
+
+def _active_user(db: Session, user_id: str | None) -> User | None:
     if not user_id:
         return None
     try:

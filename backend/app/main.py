@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api import auth, cameras, dashboard, health, internal, mediamtx, training, users, violations, zones
-from app.api.deps import COOKIE_NAME, user_from_token
+from app.api.deps import COOKIE_NAME, user_from_token, user_from_ws_ticket
 from app.config import get_settings
 from app.core.logging import setup_logging
 from app.database.database import get_engine, new_session
@@ -100,7 +100,7 @@ async def websocket_endpoint(ws: WebSocket):
         await ws.close(code=1008)
         return
     with new_session() as db:
-        user = user_from_token(db, ws.cookies.get(COOKIE_NAME))
+        user = user_from_token(db, ws.cookies.get(COOKIE_NAME)) or user_from_ws_ticket(db, ws.query_params.get("ticket"))
     if not user:
         logger.warning("WebSocket татгалзлаа: нэвтрээгүй эсвэл session дууссан | cookie_байгаа=%s origin=%s", COOKIE_NAME in ws.cookies, origin)
         await ws.close(code=1008)

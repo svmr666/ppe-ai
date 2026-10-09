@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     # Browser-ийн холбогдох MediaMTX WebRTC (WHEP) хаяг. LAN/production дээр домэйнээр солино.
     mediamtx_public_url: str = "http://localhost:8889"
     stream_token_expire_seconds: int = Field(120, ge=30, le=900)
+    # Browser-ийн холбогдох WebSocket хаяг (quick tunnel үед worker.py тохируулна). Хоосон бол web-ийн NEXT_PUBLIC_WS_URL.
+    public_ws_url: str = ""
 
     # Snapshot зураг + зөрчлийн бүртгэлийг энэ хугацаанаас хойш автоматаар устгана (минут). 0 = хэзээ ч устгахгүй.
     snapshot_retention_minutes: int = Field(10080, ge=0)  # анхдагч 7 хоног

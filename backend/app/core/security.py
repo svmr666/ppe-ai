@@ -81,6 +81,25 @@ def verify_stream_token(token: str, path: str) -> bool:
     return payload.get("scope") == _STREAM_SCOPE and payload.get("path") == path
 
 
+_WS_SCOPE = "ws"
+_WS_TICKET_SECONDS = 60
+
+
+def create_ws_ticket(user_id: str) -> str:
+    """WebSocket handshake-д зориулсан 60 секундын ticket (session токен БИШ: `sub` байхгүй тул API-д хүчингүй)."""
+    now = datetime.now(timezone.utc)
+    payload = {"scope": _WS_SCOPE, "uid": user_id, "iat": now, "exp": now + timedelta(seconds=_WS_TICKET_SECONDS)}
+    return jwt.encode(payload, get_settings().jwt_secret, algorithm=JWT_ALGORITHM)
+
+
+def decode_ws_ticket(ticket: str) -> Optional[str]:
+    try:
+        payload = jwt.decode(ticket, get_settings().jwt_secret, algorithms=[JWT_ALGORITHM], options={"require": ["exp", "uid", "scope"]})
+    except jwt.PyJWTError:
+        return None
+    return str(payload["uid"]) if payload.get("scope") == _WS_SCOPE else None
+
+
 def constant_time_equals(a: str, b: str) -> bool:
     return hmac.compare_digest(a.encode("utf-8"), b.encode("utf-8"))
 

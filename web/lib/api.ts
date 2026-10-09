@@ -3,7 +3,8 @@ import type {
   ViolationStatus, ViolationType, Zone, ZoneName,
 } from "@/types";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+// Хоосон бол same-origin: Vercel дээр `/api/*` нь next.config.ts-ийн rewrite-аар backend руу proxy хийгдэнэ
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -64,6 +65,7 @@ export const api = {
   login: (email: string, password: string) => request<User>("/api/auth/login", { method: "POST", json: { email, password } }),
   logout: () => request<void>("/api/auth/logout", { method: "POST" }),
   me: () => request<User>("/api/auth/me"),
+  wsTicket: () => request<{ ticket: string; ws_url: string | null }>("/api/auth/ws-ticket"),
 
   stats: () => request<DashboardStats>("/api/dashboard/stats"),
 

@@ -73,3 +73,14 @@ def test_stream_token_is_scoped_to_one_path_and_is_not_a_session_token():
     assert not verify_stream_token("garbage", "cam_abc")
     assert decode_access_token(token) is None  # stream токен нэвтрэлтийн session болж чадахгүй
     assert not verify_stream_token(create_access_token("user-1"), "cam_abc")  # session токен stream болж чадахгүй
+
+
+def test_ws_ticket_is_not_a_session_or_stream_token():
+    from app.core.security import create_stream_token, create_ws_ticket, decode_access_token, decode_ws_ticket
+
+    ticket = create_ws_ticket("user-1")
+    assert decode_ws_ticket(ticket) == "user-1"
+    assert decode_access_token(ticket) is None  # ticket-ээр API руу нэвтэрч болохгүй
+    assert decode_ws_ticket(create_access_token("user-1")) is None
+    assert decode_ws_ticket(create_stream_token("cam_abc")) is None
+    assert decode_ws_ticket("garbage") is None

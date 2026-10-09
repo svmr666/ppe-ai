@@ -1,3 +1,4 @@
+import { api } from "@/lib/api";
 import type { RealtimeEvent } from "@/types";
 
 export const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:8000/ws";
@@ -6,8 +7,19 @@ export interface RealtimeClient {
   close: () => void;
 }
 
+/** Dashboard өөр домэйн дээр байхад cookie handshake-д очдоггүй тул 60 секундын ticket-ийг query-д залгана. */
+async function socketUrl(): Promise<string> {
+  try {
+    const { ticket, ws_url } = await api.wsTicket();
+    const base = ws_url ?? WS_URL; // quick tunnel үед backend өөрийн одоогийн хаягийг хэлнэ
+    return `${base}${base.includes("?") ? "&" : "?"}ticket=${encodeURIComponent(ticket)}`;
+  } catch {
+    return WS_URL; // ticket авч чадаагүй бол cookie-д найдана (local dev)
+  }
+}
+
 /**
- * Auto-reconnect (exponential backoff) WebSocket. Нэвтрэлт нь httpOnly cookie-ээр (handshake-д автоматаар явна).
+ * Auto-reconnect (exponential backoff) WebSocket. Нэвтрэлт нь httpOnly cookie эсвэл reconnect бүрд шинэ ticket.
  */
 export function connectRealtime(
   onEvent: (event: RealtimeEvent) => void,
@@ -19,8 +31,10 @@ export function connectRealtime(
   let timer: ReturnType<typeof setTimeout> | undefined;
   let heartbeat: ReturnType<typeof setInterval> | undefined;
 
-  const open = () => {
-    socket = new WebSocket(WS_URL);
+  const open = async () => {
+    const url = await socketUrl();
+    if (closed) return;
+    socket = new WebSocket(url);
     const current = socket;
     socket.onopen = () => {
       if (closed) return current.close();
@@ -47,7 +61,7 @@ export function connectRealtime(
     socket.onerror = () => current.close();
   };
 
-  open();
+  void open();
   return {
     close: () => {
       closed = true;

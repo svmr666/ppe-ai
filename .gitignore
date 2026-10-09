@@ -4,6 +4,10 @@
 
 node_modules/
 .next/
+.vercel/
+
+# scripts/setup-mac.sh-ийн татдаг binary (mediamtx, cloudflared, uv)
+/bin/
 
 __pycache__/
 *.pyc

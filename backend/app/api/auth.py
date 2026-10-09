@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import COOKIE_NAME, get_current_user
 from app.config import get_settings
 from app.core.rate_limit import login_limiter
-from app.core.security import create_access_token, verify_password_constant_time
+from app.core.security import create_access_token, create_ws_ticket, verify_password_constant_time
 from app.database.database import get_db
 from app.database.models import User
 from app.schemas.auth import LoginRequest, UserOut
@@ -51,3 +51,10 @@ def logout(response: Response):
 @router.get("/me", response_model=UserOut)
 def me(user: User = Depends(get_current_user)):
     return user
+
+
+@router.get("/ws-ticket")
+def ws_ticket(response: Response, user: User = Depends(get_current_user)):
+    """Dashboard өөр домэйн дээр байхад cookie WebSocket handshake-д очдоггүй тул богино хугацаатай ticket өгнө."""
+    response.headers["Cache-Control"] = "no-store"
+    return {"ticket": create_ws_ticket(str(user.id)), "ws_url": get_settings().public_ws_url or None}

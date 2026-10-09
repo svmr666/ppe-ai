@@ -111,7 +111,7 @@ export default function SettingsPage() {
         <CardContent className="grid gap-4 text-sm sm:grid-cols-2">
           <div><div className="text-[11px] uppercase tracking-wider text-muted-foreground">Нэвтэрсэн хэрэглэгч</div>{user.full_name || user.email}<div className="text-xs text-muted-foreground">{user.email}</div></div>
           <div><div className="text-[11px] uppercase tracking-wider text-muted-foreground">Эрх</div><Badge variant="outline">{ROLE_LABEL[user.role]}</Badge></div>
-          <div><div className="text-[11px] uppercase tracking-wider text-muted-foreground">API</div>{API_URL}</div>
+          <div><div className="text-[11px] uppercase tracking-wider text-muted-foreground">API</div>{API_URL || "/api (proxy)"}</div>
           <div><div className="text-[11px] uppercase tracking-wider text-muted-foreground">Бодит цагийн холболт</div>{connected ? "Холбогдсон" : "Салсан"}</div>
         </CardContent>
       </Card>

@@ -106,6 +106,20 @@ Dashboard → **Камерууд → Камер нэмэх → Холболт ш
 
 Эрх: `ADMIN` (бүгд, камер/хэрэглэгч удирдах), `HUB_EMPLOYEE` (зөрчил хүлээн авах/шийдвэрлэх).
 
+## Vercel + аль ч Mac дээр ажиллуулах
+
+Web нь Vercel дээр, backend + ai-service + MediaMTX нь камертай нэг сүлжээнд байгаа Mac дээр ажиллаж, Cloudflare tunnel-ээр холбогдоно. Нэг удаад зөвхөн нэг Mac асаана. Vercel-ийн `/api/*` нь backend руу proxy хийгдэх тул login cookie first-party.
+
+- **Домэйнгүй (анхдагч)**: worker quick tunnel нээж, хаягаа Supabase Storage-ийн public `runtime-config/endpoints.json`-д бичнэ. Vercel: `BACKEND_REGISTRY_URL=https://<ref>.supabase.co/storage/v1/object/public/runtime-config/endpoints.json`. Mac солих/дахин асаахад redeploy хэрэггүй.
+- **Өөрийн домэйнтэй**: Cloudflare named tunnel (`api.<домэйн>` -> `localhost:8001`, `video.<домэйн>` -> `localhost:8889`), `backend/.env`-д `CLOUDFLARE_TUNNEL_TOKEN`, `MEDIAMTX_PUBLIC_URL=https://video.<домэйн>`. Vercel: `BACKEND_ORIGIN=https://api.<домэйн>`, `NEXT_PUBLIC_WS_URL=wss://api.<домэйн>/ws`.
+- **backend/.env**: `APP_ENV=production`, `COOKIE_SECURE=true`, `CORS_ORIGINS=https://<vercel-домэйн>`. Нууц утга Vercel-д ордоггүй.
+
+Шинэ Mac дээр:
+
+1. `git clone https://github.com/svmr666/ppe-ai.git && cd ppe-ai`
+2. `backend/.env`, `ai-service/.env`, YOLO model-оо хуучин Mac-аас хуулна (git-д ордоггүй).
+3. `start-worker.command`-г давхар товшино — анх удаа `scripts/setup-mac.sh` (uv + Python 3.12, MediaMTX, cloudflared -> `./bin`, venv) автоматаар ажиллана.
+
 ## Моделийн сургалт
 Dashboard → **Сургалт** (ADMIN): камераас зураг цуглуулах → браузер дотор шошглох → сургах. Дэлгэрэнгүй: [training/README.md](training/README.md).
 
